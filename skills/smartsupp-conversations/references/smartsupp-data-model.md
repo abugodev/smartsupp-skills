@@ -34,8 +34,8 @@ Consequences:
 
 `get_statistics` counts (`new_conversation`, `closed_conversation`,
 `first_response_time`) appear to cover only conversations a **human operator** took
-part in: on the test account it reported 129 of 220 conversations, the AI-only ones
-missing. Use transcript counts for volume when an AI agent is live, and label the
+part in: on the test account (2026-10-10) `new_conversation` was 129 while the transcripts
+held 220 conversations, the AI-only ones missing. Use transcript counts for volume when an AI agent is live, and label the
 official figure as "operator-handled".
 
 ## Conversation

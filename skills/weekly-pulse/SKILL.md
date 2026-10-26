@@ -12,7 +12,8 @@ of the other skills. Run what is missing, in this order: `smartsupp-conversation
 it for comparisons. Also `get_statistics` (metrics `new_conversation`,
 `closed_conversation`, `first_response_time`, `conversation_ratings`) for the same
 dates. These official statistics count **only conversations a human operator handled**
-(AI-only chats are missing; verified 2026-10-10: 229 statistics vs. all closed chats), so:
+(AI-only chats are missing: on the test account on 2026-10-10, `new_conversation` was 129
+while the transcripts held 220 conversations), so:
 take total volume and the AI only / AI + human / human only split from the sessions;
 report the official numbers as "operator-handled chats", "human first response" and
 "operator rating" — never as totals for all chats. If `get_statistics` is unavailable,

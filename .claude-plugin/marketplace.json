@@ -1,6 +1,6 @@
 {
   "name": "smartsupp-skills",
-  "owner": { "name": "Abugo", "email": "boris@reservio.com" },
+  "owner": { "name": "Abugo", "email": "support@smartsupp.com" },
   "metadata": {
     "description": "Agent skills for Smartsupp: turn chats into knowledge-gap articles, CX scores and insights"
   },
