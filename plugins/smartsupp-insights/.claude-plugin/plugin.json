@@ -3,5 +3,6 @@
   "version": "0.1.0",
   "description": "Turn Smartsupp chats into CX scores, topic clusters, knowledge-gap article drafts, contradictions, feedback drafts, product info gaps and a weekly pulse. Requires the Smartsupp MCP connector.",
   "author": { "name": "Abugo", "email": "boris@reservio.com" },
+  "license": "MIT",
   "keywords": ["smartsupp", "customer-experience", "chatbot", "knowledge-base", "voice-of-customer"]
 }
