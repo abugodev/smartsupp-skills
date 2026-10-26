@@ -1,0 +1,14 @@
+{
+  "name": "smartsupp-skills",
+  "owner": { "name": "Abugo", "email": "boris@reservio.com" },
+  "metadata": {
+    "description": "Smartsupp skills built on the Smartsupp MCP — self-improving AI chatbot and customer-voice insights"
+  },
+  "plugins": [
+    {
+      "name": "smartsupp-insights",
+      "source": "./plugins/smartsupp-insights",
+      "description": "Turn Smartsupp chats into CX scores, topic clusters, knowledge-gap article drafts, contradictions, feedback drafts, product info gaps and a weekly pulse."
+    }
+  ]
+}
