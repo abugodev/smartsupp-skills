@@ -1,0 +1,10 @@
+{
+  "name": "smartsupp-insights",
+  "version": "0.2.0",
+  "description": "Turn Smartsupp chats into knowledge-gap articles for the AI chatbot, CX scores, topic clusters, contradictions, feedback drafts, product info gaps and a weekly pulse. Requires the Smartsupp MCP server.",
+  "author": { "name": "Abugo", "email": "boris@reservio.com" },
+  "homepage": "https://github.com/abugodev/smartsupp-skills",
+  "repository": "https://github.com/abugodev/smartsupp-skills",
+  "license": "MIT",
+  "keywords": ["smartsupp", "customer-experience", "chatbot", "knowledge-base", "voice-of-customer"]
+}

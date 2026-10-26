@@ -1,0 +1,5 @@
+{
+  "name": "smartsupp-insights",
+  "version": "0.2.0",
+  "description": "Turn Smartsupp chats into knowledge-gap articles for the AI chatbot, CX scores, topic clusters, contradictions, feedback drafts, product info gaps and a weekly pulse. Requires the Smartsupp MCP server."
+}

@@ -1,16 +1,30 @@
-# Smartsupp skills for Claude Code
+# Smartsupp skills
 
-Claude Code skills that read your Smartsupp live-chat conversations and turn them into
-work your team can act on. The main output is **knowledge-gap articles**: short,
+Agent skills that read your Smartsupp live-chat conversations and turn them into work
+your team can act on. The main output is **knowledge-gap articles**: short,
 ready-to-paste texts for your Smartsupp AI chatbot's knowledge, written from the answers
 your human operators already gave.
+
+The skills use the open [Agent Skills](https://agentskills.io) format (`SKILL.md`
+folders with a few dependency-free Python scripts). They run in any harness that loads
+skills:
+- **Claude Code** and **Codex**, as a plugin;
+- **Gemini CLI**, as an extension;
+- **pi**, as a package;
+- any other agent, by copying the `skills/` folder.
 
 - [The problem](#the-problem)
 - [How it works](#how-it-works)
 - [Install](#install)
+  - [Claude Code](#claude-code)
+  - [Codex](#codex)
+  - [Gemini CLI](#gemini-cli)
+  - [pi](#pi)
+  - [Other harnesses](#other-harnesses)
 - [The skills](#the-skills)
-- [Unattended weekly run (optional)](#unattended-weekly-run-optional)
+- [Self-improving loop](#self-improving-loop)
 - [Privacy](#privacy)
+- [Repository layout](#repository-layout)
 - [Smartsupp documentation](#smartsupp-documentation)
 - [Licence](#licence)
 
@@ -18,13 +32,14 @@ your human operators already gave.
 
 An AI chatbot is only as good as its knowledge, and that knowledge drifts out of date.
 Prices change and policies get updated. Customers ask questions nobody wrote down.
-Operators then answer the same questions by hand, and the chatbot keeps
-handing chats over, guessing, or quoting an outdated fact.
+Operators then answer the same questions by hand, and the chatbot keeps handing chats
+over, guessing, or quoting an outdated fact.
 
 The answers already exist in your chat history. These skills find:
 
 - **gaps:** what the chatbot could not answer, and what operators said instead;
-- **drift:** where the chatbot, the operators and the knowledge base contradict each other;
+- **drift:** where the chatbot, the operators and the knowledge base contradict each
+  other.
 
 They then draft the missing knowledge as short articles, with personal and one-off
 details removed so that only knowledge true for every customer remains.
@@ -68,29 +83,102 @@ name the destination.
 
 ## Install
 
-**Prerequisites**
+Every harness needs:
+- **The Smartsupp MCP server** (`https://mcp.smartsupp.com/mcp`), connected and signed in
+  to your Smartsupp account.
+- **Python 3**, for the bundled scripts.
 
-- [Claude Code](https://code.claude.com/docs/en/overview)
-- A Smartsupp account connected to Claude Code through the Smartsupp MCP server, signed
-  in through the browser (see
-  [Connect Smartsupp to Claude](https://help.smartsupp.com/en/articles/16002692)):
+Installation differs by harness. If you use more than one, install separately for each.
 
-  ```
-  claude mcp add --transport http smartsupp https://mcp.smartsupp.com/mcp
-  ```
-- Python 3 for the bundled scripts.
+### Claude Code
 
-**Install the plugin** (inside Claude Code):
+1. Connect the Smartsupp MCP server and sign in through the browser (see
+   [Connect Smartsupp to Claude](https://help.smartsupp.com/en/articles/16002692)):
 
+   ```bash
+   claude mcp add --transport http smartsupp https://mcp.smartsupp.com/mcp
+   ```
+
+2. Install the plugin inside Claude Code:
+
+   ```
+   /plugin marketplace add abugodev/smartsupp-skills
+   /plugin install smartsupp-insights@smartsupp-skills
+   ```
+
+### Codex
+
+1. Connect the Smartsupp MCP server and sign in (per the
+   [Codex MCP docs](https://developers.openai.com/codex/mcp)):
+
+   ```bash
+   codex mcp add smartsupp --url https://mcp.smartsupp.com/mcp
+   codex mcp login smartsupp
+   ```
+
+2. Add this repository as a plugin marketplace and install the plugin:
+
+   ```bash
+   codex plugin marketplace add abugodev/smartsupp-skills
+   codex plugin add smartsupp-insights@smartsupp-skills
+   ```
+
+   In Codex in the ChatGPT desktop app, the added marketplace also appears as a source in
+   the Plugins Directory.
+
+To keep Codex read-only towards Smartsupp, see the `enabled_tools` example in
+[docs/self-improving-loop.md](docs/self-improving-loop.md#codex).
+
+### Gemini CLI
+
+1. Connect the Smartsupp MCP server as described in
+   [Connect Smartsupp to Google Gemini](https://help.smartsupp.com/en/articles/16011665).
+2. Install the extension. Gemini CLI discovers the bundled `skills/` automatically:
+
+   ```bash
+   gemini extensions install https://github.com/abugodev/smartsupp-skills
+   ```
+
+   Update later with `gemini extensions update smartsupp-insights`.
+
+### pi
+
+Install the skills as a [pi](https://pi.dev) package:
+
+```bash
+pi install git:github.com/abugodev/smartsupp-skills
 ```
-/plugin marketplace add abugodev/smartsupp-skills
-/plugin install smartsupp-insights@smartsupp-skills
+
+Connect the Smartsupp MCP server in pi as shown in
+[pipeline/README.md](pipeline/README.md#setup-once). That folder also has a ready-made
+unattended weekly job for pi.
+
+### Other harnesses
+
+The skills are plain [Agent Skills](https://agentskills.io) folders. For any agent that
+loads skills from a directory, copy (or symlink) the folders in `skills/` there:
+
+- `~/.agents/skills/`: read by Codex, pi and Gemini CLI;
+- `~/.claude/skills/`: Claude Code personal skills.
+
+Then connect the Smartsupp MCP server in that agent.
+
+```bash
+git clone https://github.com/abugodev/smartsupp-skills
+mkdir -p ~/.agents/skills && cp -R smartsupp-skills/skills/* ~/.agents/skills/
 ```
 
-Then ask in plain words, for example *"find knowledge gaps in last week's Smartsupp
-chats"*, *"score CX for chats from 1 to 10 October"* or *"run the weekly pulse"*. The
-analysis skills work on the workspace that `smartsupp-conversations` builds, so that skill
-runs first for a new time window.
+If your agent has no skill loader, point it at `AGENTS.md` and the relevant
+`skills/<skill>/SKILL.md`: the instructions are self-contained.
+
+**Using the skills:** ask in plain words, for example:
+- *"find knowledge gaps in last week's Smartsupp chats"*;
+- *"score CX for chats from 1 to 10 October"*;
+- *"run the weekly pulse"*.
+
+In Codex you can also mention a skill with `$`, e.g. `$knowledge-gaps`. The analysis
+skills work on the workspace that `smartsupp-conversations` builds, so that skill runs
+first for a new time window.
 
 ## The skills
 
@@ -300,14 +388,24 @@ first and sent only when you ask and name the channel.
 **Customers asked for:** delivery to Austria (3)
 ```
 
-## Unattended weekly run (optional)
+## Self-improving loop
 
-`plugins/smartsupp-insights/pipeline/weekly-pi.sh` runs the whole pipeline headless with
-the [pi coding agent](https://pi.dev). It fetches with only the MCP's read tools enabled,
-prepares the data with the scripts, runs all seven analysis skills in one session and
-checks every output. It posts nothing; the weekly post is written to the workspace for
-review. Setup and options are in
-[`pipeline/README.md`](plugins/smartsupp-insights/pipeline/README.md).
+Run the skills every week and the chatbot improves each cycle:
+
+1. fetch;
+2. find gaps and contradictions;
+3. a person reviews the drafts;
+4. paste them into the chatbot's knowledge;
+5. the next run shows whether the gap came back and whether CX moved.
+
+[docs/self-improving-loop.md](docs/self-improving-loop.md) has practical recipes:
+- a weekly job for Claude Code (`claude -p`, cloud or desktop scheduled tasks), Codex
+  (`codex exec`), pi, cron, launchd and GitHub Actions;
+- how to keep state between runs;
+- guardrails: read-only MCP, redaction, human approval, cost caps;
+- how to improve the skills from the results.
+
+The [pipeline/](pipeline/README.md) folder is one ready-made option for pi.
 
 ## Privacy
 
@@ -336,10 +434,25 @@ context (see Smartsupp's [MCP page](https://www.smartsupp.com/mcp/)). The analys
 skills read only the redacted digest. Automated redaction can miss things, so review
 drafts before you publish them.
 
+## Repository layout
+
+| Path | What |
+|---|---|
+| `skills/` | The eight skills (`SKILL.md` + `scripts/` + `references/`) |
+| `pipeline/` | Optional unattended weekly job for pi |
+| `docs/` | Guides, starting with the self-improving loop |
+| `AGENTS.md` | Instructions for agents using or maintaining the skills |
+| `.claude-plugin/` | Claude Code plugin + marketplace manifests |
+| `.codex-plugin/`, `.agents/plugins/marketplace.json` | Codex plugin manifest + marketplace |
+| `gemini-extension.json` | Gemini CLI extension manifest |
+| `package.json` | pi package manifest |
+
 ## Smartsupp documentation
 
 - [Smartsupp MCP server](https://www.smartsupp.com/mcp/): what the MCP connector can do
 - [Connect Smartsupp to Claude](https://help.smartsupp.com/en/articles/16002692): setup for Claude and Claude Code
+- [Connect Smartsupp to Google Gemini](https://help.smartsupp.com/en/articles/16011665): setup for Gemini CLI
+- [Connect Smartsupp to ChatGPT](https://help.smartsupp.com/en/articles/15996980): setup as a ChatGPT plugin
 - [Developer quickstart: Smartsupp APIs](https://help.smartsupp.com/en/articles/16011742-developer-quickstart-smartsupp-apis): overview of APIs, data exports and the MCP connector
 - [Smartsupp REST API: get started](https://docs.smartsupp.com/rest-api/get-started/)
 - [Introduction to Mira AI Shopping Assistant](https://help.smartsupp.com/en/articles/12647224): Smartsupp's AI chatbot and its knowledge sources

@@ -1,0 +1,20 @@
+{
+  "name": "smartsupp-skills",
+  "interface": {
+    "displayName": "Smartsupp Skills"
+  },
+  "plugins": [
+    {
+      "name": "smartsupp-insights",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

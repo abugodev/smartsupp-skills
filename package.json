@@ -1,0 +1,11 @@
+{
+  "name": "smartsupp-insights",
+  "version": "0.2.0",
+  "description": "Agent skills for Smartsupp: knowledge-gap articles, CX scores and insights from Smartsupp chats",
+  "license": "MIT",
+  "repository": "github:abugodev/smartsupp-skills",
+  "keywords": ["pi-package", "skills", "smartsupp", "customer-experience"],
+  "pi": {
+    "skills": ["./skills"]
+  }
+}

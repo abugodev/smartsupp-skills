@@ -1,4 +1,8 @@
-# Weekly run on pi
+# Weekly run on pi (optional)
+
+One way to run the skills unattended; it is not required. Any harness that loads
+`skills/` can run the same steps (see `../docs/self-improving-loop.md` for Claude Code,
+Codex, cron/launchd and GitHub Actions recipes).
 
 `weekly-pi.sh` runs the whole Smartsupp insights pipeline unattended with the
 [pi coding agent](https://pi.dev) (Homebrew build, `/opt/homebrew/bin/pi`):
@@ -29,14 +33,12 @@ pi mcp list                          # smartsupp: connected, 19 tools
 ## Run
 
 ```bash
-plugins/smartsupp-insights/pipeline/weekly-pi.sh                      # last full ISO week
-plugins/smartsupp-insights/pipeline/weekly-pi.sh --from 2026-10-05 --to 2026-10-11 \
+pipeline/weekly-pi.sh                      # last full ISO week
+pipeline/weekly-pi.sh --from 2026-10-05 --to 2026-10-11 \
     --kb path/to/knowledge-export --out ~/smartsupp-insights
 ```
 
 Options: `--model` / `--fetch-model` (any `pi --list-models` id), `--thinking`.
-Benchmark (internal eval set of scripted chats): Opus in one session 26–28/28 at ~$24 per 1,000
-chats at API prices; gpt-6.1-sol in one session 25/28 at ~$5–7.
 
 Run one job at a time when using subscription logins: parallel pi runs can deadlock on the
 credential refresh.

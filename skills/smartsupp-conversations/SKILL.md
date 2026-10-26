@@ -30,7 +30,9 @@ results/                          outputs of the analysis skills
 ## Step 1 — fetch (Smartsupp MCP)
 
 How the MCP returns data (fields, roles, ratings, the AI-agent visibility gap) is in
-`references/smartsupp-data-model.md` — read it once. Key point: conversations the AI
+`references/smartsupp-data-model.md` — read it once. Tool names below are the Smartsupp
+MCP's own; your harness may show them with a server prefix (in Claude Code, e.g.
+`mcp__smartsupp__search_conversations`). Only the read tools named here are needed. Key point: conversations the AI
 agent is still handling are invisible to `search_conversations` until closed, so
 analyse closed conversations.
 
@@ -49,7 +51,8 @@ analyse closed conversations.
 4. For each distinct `contact_id` call `get_contact` and write `contacts/<id>.json`
    with `{id, name, email, phone}` only. These values are used for redaction and must
    never appear in any output.
-5. Work in parallel batches (many MCP calls per message); write files as you go.
+5. Work in batches if your harness can call tools in parallel or from a script; otherwise
+   fetch one by one. Write files as you go.
 
 ## Step 2 — sessions
 
