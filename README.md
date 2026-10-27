@@ -8,10 +8,13 @@ your human operators already gave.
 The skills use the open [Agent Skills](https://agentskills.io) format (`SKILL.md`
 folders with a few dependency-free Python scripts). They run in any harness that loads
 skills:
+
 - **Claude Code** and **Codex**, as a plugin;
 - **Gemini CLI**, as an extension;
 - **pi**, as a package;
 - any other agent, by copying the `skills/` folder.
+
+## Contents
 
 - [The problem](#the-problem)
 - [How it works](#how-it-works)
@@ -320,11 +323,24 @@ coverage and agreement, and the top negative drivers. Individual operators are n
 ranked.
 
 ```json
-{"session_id": "coAbc123#0", "eligible": true, "score": 3,
- "reasons": {"answer_quality_ai": "poor", "answer_quality_operator": "good", "effort": "low",
-             "emotion": "neutral", "product_feedback": "none", "policy_feedback": "none", "resolved": "yes"},
- "explanation": "The AI did not know about Saturday delivery; an operator answered correctly.",
- "handled_by": "ai_and_operator", "rating": 5, "rating_agrees": false}
+{
+  "session_id": "coAbc123#0",
+  "eligible": true,
+  "score": 3,
+  "reasons": {
+    "answer_quality_ai": "poor",
+    "answer_quality_operator": "good",
+    "effort": "low",
+    "emotion": "neutral",
+    "product_feedback": "none",
+    "policy_feedback": "none",
+    "resolved": "yes"
+  },
+  "explanation": "The AI did not know about Saturday delivery; an operator answered correctly.",
+  "handled_by": "ai_and_operator",
+  "rating": 5,
+  "rating_agrees": false
+}
 ```
 
 ### topic-clusters
@@ -367,11 +383,31 @@ For each one, decide the likely truth and name the source to fix.
 confidence of `high`, `medium` or `low` and a concrete fix.
 
 ```json
-{"id": "free-shipping-threshold", "subject": "free shipping", "attribute": "minimum order",
- "claims": [{"value": "50 EUR", "speaker": "ai_agent", "sessions": ["coAbc123#0"]},
-            {"value": "60 EUR", "speaker": "operator", "sessions": ["coDef456#1", "coGhi789#0"]}],
- "likely_truth": "60 EUR", "confidence": "high",
- "fix": "AI knowledge: the shipping FAQ still says 50 EUR"}
+{
+  "id": "free-shipping-threshold",
+  "subject": "free shipping",
+  "attribute": "minimum order",
+  "claims": [
+    {
+      "value": "50 EUR",
+      "speaker": "ai_agent",
+      "sessions": [
+        "coAbc123#0"
+      ]
+    },
+    {
+      "value": "60 EUR",
+      "speaker": "operator",
+      "sessions": [
+        "coDef456#1",
+        "coGhi789#0"
+      ]
+    }
+  ],
+  "likely_truth": "60 EUR",
+  "confidence": "high",
+  "fix": "AI knowledge: the shipping FAQ still says 50 EUR"
+}
 ```
 
 ### feedback-drafts
@@ -415,10 +451,18 @@ attribute × count, then the suggested copy per gap. Gaps nobody answered are ma
 `needs_input`.
 
 ```json
-{"product": "trail-jacket", "attribute": "size-chart", "count": 5, "on_page": false,
- "example_questions": ["What size for 180 cm?", "Are the sleeves long?"],
- "suggested_copy": "Size chart: S 165–172 cm, M 172–180 cm, L 180–188 cm. Regular fit, sleeves cut long.",
- "status": "draft"}
+{
+  "product": "trail-jacket",
+  "attribute": "size-chart",
+  "count": 5,
+  "on_page": false,
+  "example_questions": [
+    "What size for 180 cm?",
+    "Are the sleeves long?"
+  ],
+  "suggested_copy": "Size chart: S 165–172 cm, M 172–180 cm, L 180–188 cm. Regular fit, sleeves cut long.",
+  "status": "draft"
+}
 ```
 
 ### weekly-pulse
