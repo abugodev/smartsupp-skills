@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smartsupp-cli"
+version = "0.3.0"
+description = "Command-line client for the Smartsupp REST API"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+smartsupp = "smartsupp_cli.__main__:main"
+
+[tool.setuptools]
+packages = ["smartsupp_cli", "smartsupp_cli.commands", "smartsupp_cli.helpers"]

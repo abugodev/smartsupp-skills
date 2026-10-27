@@ -18,6 +18,44 @@ Mira AI agent. Treat as the working model; re-check when something looks off.
 There is **no** tool to read or write the AI agent's knowledge (text sources, web
 sources, custom answers) — knowledge updates are a manual/dashboard step.
 
+## REST API (the `smartsupp` CLI)
+
+The CLI route reads the same data from the REST API (`https://api.smartsupp.com/v2`,
+`Authorization: Bearer <token>`). The MCP appears to pass REST objects through, so the
+conversation and message fields below are the same on both routes.
+
+| Endpoint | CLI | Notes |
+|---|---|---|
+| `POST /conversations/search` | `conversations search` | Body `{query, sort, size, after, timezone}`. `query` is a list of clauses `{field, value, op}` (`op` omitted = must match, `must_not`, `or` with a list value), at most 15; a date clause takes a `[from, to]` range. `sort` is a list of `{field: "asc"\|"desc"}`, at most 3. Cursor `after` is an array, passed back verbatim. |
+| `GET /conversations/{id}?messages=true` | `conversations get --messages` | Embeds at most the last 200 messages; a non-null `messages.after` means more. |
+| `GET /conversations/{id}/messages` | `conversations messages` | Pages the rest. |
+| `GET /contacts/{id}` | `contacts get` | Same contact object as `get_contact`. |
+| `GET /tags` | `tags list` | Tag ids for exclusion. |
+| `POST /statistics` | `statistics query` | Same metrics as `get_statistics`, plus filters and `group_by` on any field. |
+
+The REST API also covers what the MCP does not: visitors, office hours, the domain
+whitelist, lookups by your own external ids, and the full search query language.
+
+## REST API (smartsupp-cli), verified 2026-10-27
+
+Checked live against a test account:
+- `POST /conversations/search` returns `after: null` unless the body has a `sort`, so paging
+  without a sort silently stops after page 1 (`--page-all` adds `created_at` asc).
+- Search clauses that work: `{"field":"status","value":"closed"}`,
+  `{"field":"finished_at","value":[from,to]}` and `{"field":"tags","value":"<tag id>"}`, also
+  with `op: "must_not"`. Tag ids are strings.
+- `status=open` searches work; `status=pending` returns 0, so AI-handled pending chats are
+  invisible, same as the MCP.
+- One-day observation (2026-10-10), not an established rule: the REST statistics appeared to
+  exclude AI-only chats too: `new_conversation` for that day was 272 while a `created_at`
+  search for the same day found 452. Re-check before relying on it.
+- `+fetch` output (`raw/`, `contacts/`) is identical to the MCP route's for a 10-conversation
+  sample.
+- A 443-conversation `+fetch` hit 2 transient network errors; the client now retries reads
+  on those, and a re-run resumes anyway.
+- Not tested live: paging the embedded message list past 200 messages (the largest
+  conversation had 16).
+
 ## Visibility gap: AI-handled conversations
 
 While the AI agent handles a chat, the conversation has `status: "pending"` and

@@ -1,6 +1,6 @@
 ---
 name: smartsupp-conversations
-description: Fetch Smartsupp conversations through the Smartsupp MCP and turn them into clean, session-level transcripts with personal data redacted. Use as the first step of any Smartsupp analysis (CX score, topics, knowledge gaps, contradictions, feedback, product info gaps, weekly pulse), or when asked to "pull/export Smartsupp chats".
+description: Fetch Smartsupp conversations through the smartsupp CLI or the Smartsupp MCP and turn them into clean, session-level transcripts with personal data redacted. Use as the first step of any Smartsupp analysis (CX score, topics, knowledge gaps, contradictions, feedback, product info gaps, weekly pulse), or when asked to "pull/export Smartsupp chats".
 ---
 
 # Smartsupp conversations → clean sessions
@@ -27,7 +27,37 @@ manifest.json                     window, counts, account/domain info, skipped i
 results/                          outputs of the analysis skills
 ```
 
-## Step 1 — fetch (Smartsupp MCP)
+Use one workspace per window. Never fetch a different window into an existing
+workspace: its `raw/` would keep the other window's conversations.
+
+## Step 0 — choose the route
+
+The data comes either from the `smartsupp` CLI (straight to disk, see the
+`smartsupp-cli` skill) or from the Smartsupp MCP (Step 1). Check `SMARTSUPP_ROUTE` in the
+environment:
+
+- `mcp` → go to Step 1.
+- `cli` → use the CLI below; if `smartsupp` is missing or the check fails, stop and
+  tell the user.
+- `auto` or unset → run
+  `smartsupp auth check --scopes conversations:read,contacts:read,tags:read`:
+  - exit 0 → CLI;
+  - exit 2, or `smartsupp` not found → Step 1 (MCP);
+  - exit 1 → tell the user what failed, then Step 1 (MCP).
+
+CLI route — one command does all of Step 1 (exclusion tags, paging, contacts, manifest):
+
+```
+smartsupp conversations +fetch --from YYYY-MM-DD --to YYYY-MM-DD --ws <ws>
+```
+
+Add `--status open` or `--status all` if the user wants in-progress chats. It prints
+counts only and records `"route": "cli"` in `manifest.json`. If `+fetch` exits non-zero
+mid-run, run the same command once more (it resumes from what is on disk); if it fails a
+second time, report the error to the user and stop. Then skip to Step 2. Never
+read, print or edit the CLI's config file, and never set its variables yourself.
+
+## Step 1 — fetch via MCP
 
 How the MCP returns data (fields, roles, ratings, the AI-agent visibility gap) is in
 `references/smartsupp-data-model.md` — read it once. Tool names below are the Smartsupp
@@ -53,6 +83,7 @@ analyse closed conversations.
    never appear in any output.
 5. Work in batches if your harness can call tools in parallel or from a script; otherwise
    fetch one by one. Write files as you go.
+6. Write `manifest.json` with the window, counts, skipped items and `"route": "mcp"`.
 
 ## Step 2 — sessions
 

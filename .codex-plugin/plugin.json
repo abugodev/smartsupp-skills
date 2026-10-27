@@ -1,7 +1,7 @@
 {
   "name": "smartsupp-insights",
-  "version": "0.2.0",
-  "description": "Turn Smartsupp chats into knowledge-gap articles for the AI chatbot, CX scores, topic clusters, contradictions, feedback drafts, product info gaps and a weekly pulse. Requires the Smartsupp MCP server.",
+  "version": "0.3.0",
+  "description": "Turn Smartsupp chats into knowledge-gap articles for the AI chatbot, CX scores, topic clusters, contradictions, feedback drafts, product info gaps and a weekly pulse. Works through the Smartsupp MCP server, or the optional smartsupp CLI (REST API) when installed.",
   "author": {
     "name": "Abugo",
     "email": "support@smartsupp.com",
@@ -15,7 +15,7 @@
   "interface": {
     "displayName": "Smartsupp Insights",
     "shortDescription": "Knowledge-gap articles, CX scores and insights from Smartsupp chats",
-    "longDescription": "Reads closed Smartsupp conversations through the Smartsupp MCP server (read tools only), redacts personal data, and drafts knowledge-gap articles to paste into the Smartsupp AI chatbot's knowledge, plus CX scores, topics, contradictions, feedback drafts, product info gaps and a weekly pulse.",
+    "longDescription": "Reads closed Smartsupp conversations through the Smartsupp MCP server (read tools only) or, when installed, the optional smartsupp CLI over the REST API, redacts personal data, and drafts knowledge-gap articles to paste into the Smartsupp AI chatbot's knowledge, plus CX scores, topics, contradictions, feedback drafts, product info gaps and a weekly pulse.",
     "developerName": "Abugo",
     "category": "Productivity",
     "capabilities": ["Read", "Write"],

@@ -12,12 +12,31 @@ drafts, product info gaps and a weekly pulse. The skills follow the open
 |---|---|
 | `skills/<skill>/SKILL.md` | The skills: YAML front matter (`name`, `description`), then instructions. Optional `scripts/` and `references/`. |
 | `skills/smartsupp-conversations/` | The shared first step (fetch → sessions → redaction → digest) and the scripts every other skill uses: `normalize.py`, `redact.py`, `digest.py`, `insights.py`, `leakcheck.py`. |
+| `skills/smartsupp-cli/` | How to use the optional `smartsupp` CLI (REST API): setup, route check, commands, write switch. |
+| `cli/` | The `smartsupp` CLI itself (Python package, standard library only). |
+| `.env.example` | The CLI's config variables, names only. |
 | `pipeline/` | One optional way to run everything unattended: a weekly script for the pi coding agent. |
 | `docs/` | Longer guides, e.g. `docs/self-improving-loop.md`. |
 | `.claude-plugin/` | Claude Code plugin and marketplace manifests. |
 | `.codex-plugin/`, `.agents/plugins/marketplace.json` | Codex plugin manifest and marketplace. |
 | `gemini-extension.json` | Gemini CLI extension manifest. |
 | `package.json` | pi package manifest (`pi.skills`). |
+
+## Install the CLI (optional)
+
+Without it, the skills read Smartsupp through the MCP. With it, `smartsupp-conversations`
+and `weekly-pulse` fetch straight to disk over the REST API, so chat data and contact
+details do not pass through the model. The user installs it and stores an API token:
+
+```bash
+uv tool install "git+https://github.com/abugodev/smartsupp-skills#subdirectory=cli"
+smartsupp auth setup
+```
+
+`pipx install` with the same URL works too. The skills pick the route themselves
+(`SMARTSUPP_ROUTE`: `auto`, `cli`, `mcp`); see `skills/smartsupp-cli/SKILL.md`. Never
+read, print or edit the CLI's config file, and never set `SMARTSUPP_API_TOKEN` or
+`SMARTSUPP_ALLOW_WRITES` yourself. Every token has full access to the account.
 
 ## Using the skills
 
@@ -37,9 +56,10 @@ drafts, product info gaps and a weekly pulse. The skills follow the open
   `get_conversation`, `list_messages`, `list_tags`, `get_contact`, `get_statistics`).
   Harnesses show them with their own prefix, e.g. `mcp__smartsupp__search_conversations`
   in Claude Code. Use whatever name your harness exposes for the same tool.
+  The CLI route replaces these calls with `smartsupp` commands.
 - **Read-only.** Only the read tools above are needed. Never call `send_message`,
-  `close_conversation`, `assign_operator` or tag-writing tools unless the user asks for
-  exactly that. `cx-score` can tag sessions, but only on request.
+  `close_conversation`, `assign_operator` or tag-writing tools, or any CLI write command,
+  unless the user asks for exactly that. `cx-score` can tag sessions, but only on request.
 - **Batching.** If your harness can call tools in parallel or from a script, fetch
   conversations in batches. Otherwise, fetch them one by one; the output is the same.
 - **No skill tool?** Read the relevant `skills/<skill>/SKILL.md` and follow it.
@@ -57,9 +77,11 @@ and names the destination.
 - Keep skill text harness-neutral. Describe actions ("fetch", "read", "write a file"),
   not one harness's tool names. When a step really differs per harness, say so
   explicitly for each harness.
-- Keep scripts dependency-free (Python 3 standard library).
+- Keep scripts and `cli/` dependency-free (Python 3 standard library; `cli/` stays
+  Python 3.9-compatible).
 - Examples in skills and code comments must be fictional and neutral. Never paste real
   customer data, real shop names or transcript excerpts.
 - When you change the plugin version, bump it in every manifest:
   `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`,
-  `.codex-plugin/plugin.json`, `gemini-extension.json` and `package.json`.
+  `.codex-plugin/plugin.json`, `gemini-extension.json`, `package.json` and
+  `cli/pyproject.toml`.

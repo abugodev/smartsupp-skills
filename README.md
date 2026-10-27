@@ -21,6 +21,7 @@ skills:
   - [Gemini CLI](#gemini-cli)
   - [pi](#pi)
   - [Other harnesses](#other-harnesses)
+  - [Optional: the smartsupp CLI](#optional-the-smartsupp-cli)
 - [The skills](#the-skills)
 - [Self-improving loop](#self-improving-loop)
 - [Privacy](#privacy)
@@ -74,6 +75,9 @@ get_statistics (pulse only)                                   product-info-gaps
    it rests on.
 4. **Check:** before any output is written, a format and leak check validates it (see
    [Privacy](#privacy)).
+
+With the optional [smartsupp CLI](#optional-the-smartsupp-cli) installed, step 1 runs as
+one command over the Smartsupp REST API instead of the MCP tools above.
 
 **Read-only by default.** The skills use the MCP's read tools only. They never send
 messages, close, assign or change conversations. There is one opt-in exception:
@@ -171,6 +175,48 @@ mkdir -p ~/.agents/skills && cp -R smartsupp-skills/skills/* ~/.agents/skills/
 If your agent has no skill loader, point it at `AGENTS.md` and the relevant
 `skills/<skill>/SKILL.md`: the instructions are self-contained.
 
+### Optional: the smartsupp CLI
+
+`smartsupp` is a command-line client for the
+[Smartsupp REST API](https://docs.smartsupp.com/rest-api/get-started/), included in this
+repository (`cli/`, Python 3.9+, no dependencies). When it is installed and has a token,
+`smartsupp-conversations` fetches chats with one command and `weekly-pulse` reads the
+statistics with it. The data goes straight to disk, so chat text and contact details do
+not pass through your AI assistant on the way in, and fetching costs no model tokens.
+Without it, the skills use the MCP as described above.
+
+1. Install it with [uv](https://docs.astral.sh/uv/) or [pipx](https://pipx.pypa.io/):
+
+   ```bash
+   uv tool install "git+https://github.com/abugodev/smartsupp-skills#subdirectory=cli"
+   # or
+   pipx install "git+https://github.com/abugodev/smartsupp-skills#subdirectory=cli"
+   ```
+
+2. Create an API token in the Smartsupp dashboard (API Tokens), then store it. Run this in
+   your own terminal; it asks for the token and never takes it as an argument:
+
+   ```bash
+   smartsupp auth setup
+   smartsupp auth check
+   ```
+
+   The token is stored in `~/.config/smartsupp-cli/.env` (or
+   `$XDG_CONFIG_HOME/smartsupp-cli/.env`) with mode `0600`. The variables are listed in
+   [.env.example](.env.example).
+
+**Every token has full access to your Smartsupp account.** The dashboard has no scope
+choice when you create a token, so it cannot be made read-only. The CLI blocks every
+write command (exit code 4) unless you add `SMARTSUPP_ALLOW_WRITES=1` to its config
+file, and every write accepts `--dry-run`. The skills are told never to read the config
+file or turn writes on, but this guards against accidents, not against an agent that
+deliberately runs shell commands. Keep writes off unless you need them.
+
+**Choosing the route:** by default (`SMARTSUPP_ROUTE=auto`) the skills run
+`smartsupp auth check` and use the CLI when it passes, else the MCP. Set
+`SMARTSUPP_ROUTE=cli` or `SMARTSUPP_ROUTE=mcp` in your shell environment to force one.
+The `smartsupp-cli` skill documents every command.
+
 **Using the skills:** ask in plain words, for example:
 - *"find knowledge gaps in last week's Smartsupp chats"*;
 - *"score CX for chats from 1 to 10 October"*;
@@ -206,6 +252,19 @@ C 0: Do you deliver on Saturdays?
 A 4: I don't have that information. Shall I connect you with a colleague?
 C 20: yes please
 O 95: Yes, Saturday delivery is available in larger cities for a small surcharge.
+```
+
+### smartsupp-cli
+
+**Purpose:** how to use the optional `smartsupp` CLI: setup, the route check, every
+command (agents, contacts, conversations, messages, visitors, settings, statistics, tags
+and more), search and statistics flags, exit codes and the write switch.
+
+**Use when:** "Smartsupp API", "smartsupp CLI", searching conversations with filters,
+statistics by domain or agent, visitors, office hours, the domain whitelist.
+
+```bash
+smartsupp statistics query --metric new_conversation --from 2026-10-01 --to 2026-10-07 --group-by domain
 ```
 
 ### knowledge-gaps
@@ -373,7 +432,7 @@ and what customers asked for.
 scheduled weekly run.
 
 **Input:** the week's workspace with the other skills' results (missing ones are run
-first) and Smartsupp's `get_statistics`. Official statistics count only conversations a
+first) and Smartsupp's statistics (through the CLI or `get_statistics`). Official statistics count only conversations a
 human operator handled, so they are labelled "operator-handled". Total volume comes from
 the transcripts.
 
@@ -430,7 +489,8 @@ Personal data is handled in layers:
 
 The workspace is a local folder; the plugin sends nothing to third parties. As with any
 MCP connector, the data Claude fetches passes through your AI assistant as conversation
-context (see Smartsupp's [MCP page](https://www.smartsupp.com/mcp/)). The analysis
+context (see Smartsupp's [MCP page](https://www.smartsupp.com/mcp/)); with the
+[smartsupp CLI](#optional-the-smartsupp-cli) it goes straight to disk instead. The analysis
 skills read only the redacted digest. Automated redaction can miss things, so review
 drafts before you publish them.
 
@@ -438,7 +498,9 @@ drafts before you publish them.
 
 | Path | What |
 |---|---|
-| `skills/` | The eight skills (`SKILL.md` + `scripts/` + `references/`) |
+| `skills/` | The nine skills (`SKILL.md` + `scripts/` + `references/`) |
+| `cli/` | The optional `smartsupp` CLI for the REST API |
+| `.env.example` | The CLI's config variables (names only) |
 | `pipeline/` | Optional unattended weekly job for pi |
 | `docs/` | Guides, starting with the self-improving loop |
 | `AGENTS.md` | Instructions for agents using or maintaining the skills |

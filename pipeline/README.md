@@ -40,5 +40,21 @@ pipeline/weekly-pi.sh --from 2026-10-05 --to 2026-10-11 \
 
 Options: `--model` / `--fetch-model` (any `pi --list-models` id), `--thinking`.
 
+## Fetching with the CLI (optional)
+
+With the `smartsupp` CLI installed (see the root `README.md`: `uv tool install` or `pipx install` of the `cli` subdirectory) and a token configured
+(`smartsupp auth setup`), the script fetches conversations itself with
+`smartsupp conversations +fetch` and pre-fetches official statistics into
+`statistics.json`. It then skips the pi fetch session, so fetching costs no model tokens
+and happens outside any agent session. The analyse session is started with `SMARTSUPP_ROUTE=mcp`, which the skills honour (the CLI
+itself ignores that variable), and with `SMARTSUPP_API_TOKEN` removed from its environment (a
+prompt-level guard, not enforced against a deliberately misbehaving agent: the config file
+stays readable). It drops the
+`get_statistics` tool and weekly-pulse reads `statistics.json`. If the CLI fetch fails the
+run stops (no mid-run fallback to the MCP route). The summary line `fetch: cli` or
+`fetch: mcp` shows which route was used. Without the CLI (or without a token) the MCP
+route above is used unchanged; when the CLI is installed but `auth check` fails, the script
+prints the exit code of the check and uses the MCP route.
+
 Run one job at a time when using subscription logins: parallel pi runs can deadlock on the
 credential refresh.

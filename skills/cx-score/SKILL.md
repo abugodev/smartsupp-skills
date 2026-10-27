@@ -122,4 +122,15 @@ Get every number below from `python3 ../smartsupp-conversations/scripts/insights
 - Do not rank or score individual operators.
 
 Optional write-back (only when the user asks): tag sessions in Smartsupp with
-`cx-1`…`cx-5` using `create_tag` / `tag_conversation`.
+`cx-1`…`cx-5`. Tags go on the conversation (the part of the session id before `#`).
+- **CLI**, if `smartsupp` is installed, the user has turned writes on and
+  `SMARTSUPP_ROUTE` is not `mcp`: find tag ids with `smartsupp tags list`, create missing
+  tags with `smartsupp tags create --name cx-N`, then
+  `smartsupp conversations tag <conversation_id> --id <tag_id>`. Run the first write with
+  `--dry-run` and show it. Exit 4 means writes are off: don't turn them on — use the MCP.
+  Exit 2 or 3, or `smartsupp` not installed → use the MCP. Exit 1 on a write → stop and
+  report it to the user; do not retry it through the MCP, because the write may already
+  have been applied.
+- **MCP** otherwise (including `SMARTSUPP_ROUTE=mcp`): `create_tag` / `tag_conversation`.
+
+Never read, print or edit the CLI's config file, and never set its variables yourself.

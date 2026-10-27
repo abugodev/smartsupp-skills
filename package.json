@@ -1,6 +1,6 @@
 {
   "name": "smartsupp-insights",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Agent skills for Smartsupp: knowledge-gap articles, CX scores and insights from Smartsupp chats",
   "license": "MIT",
   "repository": "github:abugodev/smartsupp-skills",

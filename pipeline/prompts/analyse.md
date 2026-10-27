@@ -65,7 +65,7 @@ Run the `weekly-pulse` skill ({SKILLS}/weekly-pulse/SKILL.md) on the Smartsupp w
 {WS}. The results of all other skills are already in {WS}/results/ — do not re-run them.
 Read {SKILLS}/smartsupp-conversations/SKILL.md for the conventions, personal-data gate
 and scripts/leakcheck.py. There is no previous week's workspace. Do not call any
-Smartsupp tools except `get_statistics` (call it through codemode as `tools.mcp__smartsupp__get_statistics` for the same window). Do not post anything
-anywhere. Write {WS}/results/weekly-pulse.md and weekly-pulse.json. Read only the skill
+Smartsupp tools except `get_statistics`, and only when `{WS}/statistics.json` is absent (call it through codemode as `tools.mcp__smartsupp__get_statistics` for the same window); never run the `smartsupp` CLI. Do not post anything
+anywhere. If `{WS}/statistics.json` exists, weekly-pulse takes official statistics from it and does not call Smartsupp. Write {WS}/results/weekly-pulse.md and weekly-pulse.json. Read only the skill
 files and the workspace. Report the post, its length, the leakcheck result and anything
 ambiguous.

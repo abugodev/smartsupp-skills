@@ -9,16 +9,35 @@ description: Weekly customer-voice digest from Smartsupp chats — volume, CX sc
 of the other skills. Run what is missing, in this order: `smartsupp-conversations` →
 `cx-score` → `topic-clusters` → `knowledge-gaps` → `contradiction-finder` →
 `feedback-drafts` → `product-info-gaps`. If the previous week's workspace exists, use
-it for comparisons. Also `get_statistics` (metrics `new_conversation`,
+it for comparisons. Also the official statistics (metrics `new_conversation`,
 `closed_conversation`, `first_response_time`, `conversation_ratings`) for the same
-dates. These official statistics count **only conversations a human operator handled**
+dates — see **Statistics** below. These official statistics count **only conversations a human operator handled**
 (AI-only chats are missing: on the test account on 2026-10-10, `new_conversation` was 129
 while the transcripts held 220 conversations), so:
 take total volume and the AI only / AI + human / human only split from the sessions;
 report the official numbers as "operator-handled chats", "human first response" and
-"operator rating" — never as totals for all chats. If `get_statistics` is unavailable,
+"operator rating" — never as totals for all chats. If statistics are unavailable,
 compute first response from transcripts and say so.
 **Output:** `<ws>/results/weekly-pulse.md` (the post) and `<ws>/results/weekly-pulse.json`.
+
+## Statistics
+
+1. If `<ws>/statistics.json` exists (an unattended run may have fetched it), read it and
+   skip the rest.
+2. Otherwise choose the route from `SMARTSUPP_ROUTE` in the environment: `mcp` → MCP;
+   `cli` → CLI, and if the check or the query fails, tell the user and carry on with the
+   transcript-only fallback above (statistics are optional; don't stop the pulse); `auto` or unset → run
+   `smartsupp auth check --scopes statistics:read`: exit 0 → CLI; exit 2 or `smartsupp`
+   not found → MCP; exit 1 → tell the user what failed, then MCP.
+3. CLI:
+   ```
+   smartsupp statistics query --metric new_conversation --metric closed_conversation \
+     --metric first_response_time --metric conversation_ratings \
+     --from <first day> --to <last day> --out <ws>/statistics.json
+   ```
+   MCP: `get_statistics` with the same metrics and dates.
+
+Never read, print or edit the CLI's config file, and never set its variables yourself.
 
 Take every number (volume, handled-by split, first response, CX, top topics with ties, top
 gaps, feature requests, product info gap, contradictions) from
